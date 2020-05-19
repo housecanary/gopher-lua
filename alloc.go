@@ -1,7 +1,6 @@
 package lua
 
 import (
-	"reflect"
 	"unsafe"
 )
 
@@ -26,9 +25,8 @@ func init() {
 
 // allocator is a fast bulk memory allocator for the LValue.
 type allocator struct {
-	size    int
-	fptrs   []float64
-	fheader *reflect.SliceHeader
+	size  int
+	fptrs []float64
 
 	scratchValue  LValue
 	scratchValueP *iface
@@ -36,11 +34,9 @@ type allocator struct {
 
 func newAllocator(size int) *allocator {
 	al := &allocator{
-		size:    size,
-		fptrs:   make([]float64, 0, size),
-		fheader: nil,
+		size:  size,
+		fptrs: make([]float64, 0, size),
 	}
-	al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
 	al.scratchValue = LNumber(0)
 	al.scratchValueP = (*iface)(unsafe.Pointer(&al.scratchValue))
 
@@ -63,7 +59,6 @@ func (al *allocator) LNumber2I(v LNumber) LValue {
 	// check if we need a new alloc page
 	if cap(al.fptrs) == len(al.fptrs) {
 		al.fptrs = make([]float64, 0, al.size)
-		al.fheader = (*reflect.SliceHeader)(unsafe.Pointer(&al.fptrs))
 	}
 
 	// alloc a new float, and store our value into it
